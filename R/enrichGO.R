@@ -39,11 +39,11 @@ enrichGO <- function(gene,
                      qvalueCutoff = 0.2,
                      minGSSize = 10,
                      maxGSSize = 500,
-                     readable=FALSE, pool=FALSE) {
+                     readable=FALSE, pool=FALSE, experimental = FALSE) {
 
     ont %<>% toupper
     ont <- match.arg(ont, c("BP", "MF", "CC", "ALL"))
-    GO_DATA <- get_GO_data(OrgDb, ont, keyType)
+    GO_DATA <- get_GO_data(OrgDb, ont, keyType, experimental)
 
     if (missing(universe))
         universe <- NULL
@@ -103,7 +103,7 @@ enrichGO <- function(gene,
 ##' @importFrom AnnotationDbi keytypes
 ##' @importFrom AnnotationDbi toTable
 ##' @importFrom GO.db GOTERM
-get_GO_data <- function(OrgDb, ont, keytype) {
+get_GO_data <- function(OrgDb, ont, keytype, experimental = FALSE) {
     GO_Env <- get_GO_Env()
     use_cached <- FALSE
 
@@ -119,11 +119,13 @@ get_GO_data <- function(OrgDb, ont, keytype) {
             ## https://github.com/GuangchuangYu/clusterProfiler/issues/182
             ## && exists("GO2TERM", envir=GO_Env, inherits=FALSE)){
 
-            use_cached <- TRUE
+            # temporarily disable cache
+            # use_cached <- TRUE
         }
     }
 
     if (use_cached) {
+        message("Using cached goAnno object...")
         goAnno <- get("goAnno", envir=GO_Env)
     } else {
         OrgDb <- load_OrgDb(OrgDb)
@@ -133,11 +135,16 @@ get_GO_data <- function(OrgDb, ont, keytype) {
         }
 
         kk <- keys(OrgDb, keytype=keytype)
-        goAnno <- suppressMessages(
+
+        if (isTRUE(experimental)) {
+          message("Retrieving data with experimental query feature...")
+          goAnno <- query_org_db(OrgDb, ont, keytype)
+        } else {
+          goAnno <- suppressMessages(
             select(OrgDb, keys=kk, keytype=keytype,
                    columns=c("GOALL", "ONTOLOGYALL")))
-
-        goAnno <- unique(goAnno[!is.na(goAnno$GOALL), ])
+          goAnno <- unique(goAnno[!is.na(goAnno$GOALL), ])
+        }
 
         assign("goAnno", goAnno, envir=GO_Env)
         assign("keytype", keytype, envir=GO_Env)
