@@ -2,25 +2,26 @@ query_org_db <- function(OrgDb, ont, keytype) {
   con <- dbconn(OrgDb)
 
   # database tables
-  ont_tbl  <- ifelse(ont == "ALL", "go_all", sprintf("go_%s", tolower(ont)))
+  if (ont == "ALL") ont <- c("BP", "MF", "CC")
+  ont_tbl  <- sprintf("go_%s_all", tolower(ont))
   gene_tbl <- key2table(keytype, DBI::dbListTables(con))
 
   # gene table fieldname
   gene_field <- setdiff(DBI::dbListFields(con, gene_tbl), "_id")
-  ont_field <- switch(ont, ALL = DBI::SQL("ontology"), ont)
 
-  sql <- glue::glue_sql(
-    "SELECT {DBI::SQL(gene_field)}, go_id, evidence, {ont_field} as ontology
-     FROM {gene_tbl}
-     JOIN {ont_tbl}
-     ON {gene_tbl}._id = {ont_tbl}._id",
+  query <- glue::glue_sql(
+    "SELECT {DBI::SQL(gene_field)}, go_id, evidence, {ont} as ontology
+    FROM {gene_tbl}
+    JOIN {ont_tbl}
+    ON {gene_tbl}._id = {ont_tbl}._id",
     .con = con
   )
 
-  result <- DBI::dbGetQuery(con, sql)
+  results <- lapply(query, DBI::dbGetQuery, conn = con)
+  out <- Reduce(rbind, results)
 
   # temporarily force names to match original goAnno by appending 'ALL'
-  setNames(result, c(keytype, "GOALL", "EVIDENCEALL", "ONTOLOGYALL"))
+  setNames(out, c(keytype, "GOALL", "EVIDENCEALL", "ONTOLOGYALL"))
 }
 
 #' Convert a OrgDB keytype to the corresponding database field name
