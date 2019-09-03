@@ -1,3 +1,6 @@
+#' @importFrom DBI dbListFields dbListTables dbGetQuery
+#' @importFrom AnnotationDbi dbconn
+#' @importFrom glue glue_sql
 query_org_db <- function(OrgDb, ont, keytype) {
   con <- dbconn(OrgDb)
 

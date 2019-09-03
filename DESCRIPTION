@@ -14,6 +14,7 @@ Description: This package implements methods to analyze and visualize
 Depends:
     R (>= 3.4.0)
 Imports:
+    DBI,
     AnnotationDbi,
     DOSE (>= 3.5.1),
     enrichplot (>= 0.99.7),
@@ -27,7 +28,8 @@ Imports:
     rvcheck,
     stats,
     tidyr,
-    utils
+    utils,
+    glue
 Suggests:
     AnnotationHub,
     dplyr,
