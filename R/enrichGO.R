@@ -15,6 +15,8 @@
 ##' @param maxGSSize maximal size of genes annotated for testing
 ##' @param readable whether mapping gene ID to gene Name
 ##' @param pool If ont='ALL', whether pool 3 GO sub-ontologies
+##' @param experimental If `TRUE` GO is retrieved using an experimental feature
+##'    that directly queries the underlying the specified OrgDb database
 ##' @return An \code{enrichResult} instance.
 ##' @importClassesFrom DOSE enrichResult
 ##' @importFrom DOSE setReadable

@@ -9,7 +9,7 @@ categories after FDR control.}
 enrichGO(gene, OrgDb, keyType = "ENTREZID", ont = "MF",
   pvalueCutoff = 0.05, pAdjustMethod = "BH", universe,
   qvalueCutoff = 0.2, minGSSize = 10, maxGSSize = 500,
-  readable = FALSE, pool = FALSE)
+  readable = FALSE, pool = FALSE, experimental = FALSE)
 }
 \arguments{
 \item{gene}{a vector of entrez gene id.}
@@ -35,6 +35,9 @@ enrichGO(gene, OrgDb, keyType = "ENTREZID", ont = "MF",
 \item{readable}{whether mapping gene ID to gene Name}
 
 \item{pool}{If ont='ALL', whether pool 3 GO sub-ontologies}
+
+\item{experimental}{If `TRUE` GO is retrieved using an experimental feature
+that directly queries the underlying the specified OrgDb database}
 }
 \value{
 An \code{enrichResult} instance.
